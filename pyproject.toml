@@ -1,0 +1,65 @@
+[project]
+name = "mcp-text-to-speech"
+version = "1.0.0"
+description = "Local offline MCP server for text-to-speech - works anywhere, no API costs"
+authors = [
+    {name = "Michael Yu", email = "michael@example.com"}
+]
+dependencies = [
+    "mcp>=1.0.0",
+    "pydub>=0.25.1",
+    "pyttsx3>=2.90",
+    "gTTS>=2.3.0",
+    "pygame>=2.5.0",
+    "soundfile>=0.12.1",
+    "numpy>=1.24.0",
+    "requests>=2.31.0",
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "mypy>=1.0.0",
+    "ruff>=0.1.0",
+]
+offline = [
+    "espeak-ng",
+    "festival",
+    "flite",
+]
+ai = [
+    "TTS>=0.21.0",
+    "torch>=2.0.0",
+    "transformers>=4.30.0",
+]
+all = [
+    "espeak-ng",
+    "festival", 
+    "flite",
+    "TTS>=0.21.0",
+    "torch>=2.0.0",
+    "transformers>=4.30.0",
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "mypy>=1.0.0",
+    "ruff>=0.1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.0.0",
+    "black>=23.0.0", 
+    "mypy>=1.0.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+mcp-text-to-speech = "mcp_text_to_speech.server:main"

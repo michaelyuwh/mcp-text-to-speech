@@ -1,0 +1,136 @@
+version: '3.8'
+
+services:
+  mcp-text-to-speech:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+    image: mcp-text-to-speech:latest
+    container_name: mcp-tts-server
+    restart: unless-stopped
+    
+    # Environment variables for TTS configuration
+    environment:
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+      - TTS_CACHE_DIR=/tmp/tts_cache
+      - TTS_OUTPUT_DIR=/app/output
+      
+      # Audio system configuration
+      - PULSE_RUNTIME_PATH=/tmp/pulse
+      - ALSA_CARD=0
+      
+      # Online TTS service credentials (optional)
+      # Uncomment and configure as needed:
+      # - AZURE_SPEECH_KEY=your_azure_key
+      # - AZURE_SPEECH_REGION=your_azure_region
+      # - AWS_ACCESS_KEY_ID=your_aws_key
+      # - AWS_SECRET_ACCESS_KEY=your_aws_secret
+      # - IBM_WATSON_APIKEY=your_watson_key
+      # - IBM_WATSON_URL=your_watson_url
+      
+      # Force specific server mode (optional)
+      # - TTS_MODE=offline  # Force offline mode
+      # - TTS_MODE=online   # Force online mode
+      # - TTS_ENGINE=pyttsx3  # Force specific engine
+    
+    # Volume mounts
+    volumes:
+      # Output directory for generated audio files
+      - ./output:/app/output
+      # Cache directory for TTS models and temporary files
+      - tts_cache:/tmp/tts_cache
+      # Audio device access (Linux)
+      - /dev/snd:/dev/snd:ro
+      # PulseAudio socket (if using PulseAudio)
+      # - /run/user/1000/pulse:/tmp/pulse:ro
+    
+    # Device access for audio
+    devices:
+      - /dev/snd:/dev/snd
+    
+    # Network configuration
+    ports:
+      # Expose MCP port if using TCP mode (optional)
+      - "8000:8000"
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.path.insert(0, '/app/src'); from mcp_text_to_speech import OfflineTextToSpeechServer; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    # Security
+    security_opt:
+      - no-new-privileges:true
+    user: "1001:1001"
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Optional: Separate online TTS service
+  mcp-text-to-speech-online:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mcp-text-to-speech:latest
+    container_name: mcp-tts-online
+    restart: unless-stopped
+    command: ["python", "-m", "mcp_text_to_speech", "--online"]
+    
+    environment:
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+      
+      # Online service credentials (required for online mode)
+      - AZURE_SPEECH_KEY=${AZURE_SPEECH_KEY:-}
+      - AZURE_SPEECH_REGION=${AZURE_SPEECH_REGION:-}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+      - IBM_WATSON_APIKEY=${IBM_WATSON_APIKEY:-}
+      - IBM_WATSON_URL=${IBM_WATSON_URL:-}
+    
+    volumes:
+      - ./output_online:/app/output
+      - tts_cache_online:/tmp/tts_cache
+    
+    ports:
+      - "8001:8000"
+    
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+    
+    profiles:
+      - online  # Only start with: docker-compose --profile online up
+
+volumes:
+  tts_cache:
+    driver: local
+  tts_cache_online:
+    driver: local
+
+networks:
+  default:
+    name: mcp-tts-network

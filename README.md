@@ -53,16 +53,33 @@ python -m mcp_text_to_speech --info
 
 ### Option 2: Docker (Recommended for Production)
 
+#### Docker Hub (Optimized Images)
+```bash
+# Ultra-slim production image (406MB, optimized)
+docker pull michaelyuwh/mcp-text-to-speech:slim
+docker run -p 8000:8000 michaelyuwh/mcp-text-to-speech:slim
+
+# Versioned slim image
+docker pull michaelyuwh/mcp-text-to-speech:v1.0.0-slim
+docker run -p 8000:8000 -v ./output:/app/output michaelyuwh/mcp-text-to-speech:v1.0.0-slim
+```
+
+#### Build from Source
 ```bash
 # Quick start with Docker Compose
 docker-compose up -d
 
-# Or build and run manually
+# Build standard image
 docker build -t mcp-text-to-speech .
+
+# Build slim image (optimized)
+docker build -f Dockerfile.slim -t mcp-text-to-speech:slim .
+
+# Run with audio output
 docker run -it --rm \
   -v ./output:/app/output \
   --device /dev/snd:/dev/snd \
-  mcp-text-to-speech
+  mcp-text-to-speech:slim
 ```
 
 ### Option 3: Development Setup
@@ -231,14 +248,14 @@ python -m mcp_text_to_speech --debug
 
 ## 🐳 Docker Deployment
 
-### Production Deployment
+### Production Deployment (Recommended)
 
 ```yaml
-# docker-compose.yml
+# docker-compose.yml - Using optimized slim image
 version: '3.8'
 services:
   mcp-tts:
-    image: mcp-text-to-speech:latest
+    image: michaelyuwh/mcp-text-to-speech:slim  # 406MB optimized image
     restart: unless-stopped
     volumes:
       - ./output:/app/output
@@ -249,7 +266,18 @@ services:
       - /dev/snd:/dev/snd
     ports:
       - "8000:8000"
+
+volumes:
+  tts_cache:
 ```
+
+### Docker Image Options
+
+| Image Type | Size | Use Case | Command |
+|------------|------|----------|---------|
+| **Slim** | **406MB** | **Production** | `michaelyuwh/mcp-text-to-speech:slim` |
+| **Standard** | ~800MB | Development | Build from source |
+| **Latest** | Variable | Testing | `michaelyuwh/mcp-text-to-speech:latest` |
 
 ### Multi-Platform Build
 

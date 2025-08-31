@@ -1,0 +1,72 @@
+# Ultra-slim Dockerfile for MCP Text-to-Speech (~150-200MB)
+# Multi-stage build for minimal final image size
+
+# Stage 1: Builder stage
+FROM python:3.11-slim as builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv for faster builds
+RUN pip install --no-cache-dir uv
+
+# Set working directory
+WORKDIR /app
+
+# Copy and install dependencies
+COPY pyproject.toml README.md ./
+COPY src/ ./src/
+
+# Install dependencies to virtual environment
+RUN uv venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+RUN uv pip install -e . --no-cache
+
+# Stage 2: Runtime stage (ultra-slim)
+FROM python:3.11-slim
+
+# Install minimal runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # Only essential audio libraries
+    espeak \
+    alsa-utils \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Copy virtual environment from builder
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copy application code
+COPY --from=builder /app/src /app/src
+COPY --from=builder /app/pyproject.toml /app/README.md /app/
+
+# Set working directory
+WORKDIR /app
+
+# Create non-root user
+RUN useradd --create-home --uid 1001 ttsuser && \
+    chown -R ttsuser:ttsuser /app
+USER ttsuser
+
+# Environment variables
+ENV PYTHONPATH=/app/src
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Minimal health check
+HEALTHCHECK --interval=60s --timeout=5s --start-period=10s --retries=2 \
+    CMD python -c "import sys; sys.exit(0)" || exit 1
+
+# Expose port
+EXPOSE 8000
+
+# Run the server
+CMD ["python", "-m", "mcp_text_to_speech"]
+
+# Minimal metadata
+LABEL version="1.0.0-slim" \
+      description="MCP Text-to-Speech - Ultra Slim" \
+      maintainer="michaelyuwh"

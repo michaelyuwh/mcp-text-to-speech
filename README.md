@@ -62,6 +62,10 @@ docker run -p 8000:8000 michaelyuwh/mcp-text-to-speech:slim
 # Versioned slim image
 docker pull michaelyuwh/mcp-text-to-speech:v1.0.0-slim
 docker run -p 8000:8000 -v ./output:/app/output michaelyuwh/mcp-text-to-speech:v1.0.0-slim
+
+# GitHub Container Registry (alternative)
+docker pull ghcr.io/michaelyuwh/mcp-text-to-speech:slim
+docker run -p 8000:8000 ghcr.io/michaelyuwh/mcp-text-to-speech:slim
 ```
 
 #### Build from Source

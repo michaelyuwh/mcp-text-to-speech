@@ -6,18 +6,22 @@ Both MCP tools now provide optimized Docker images available on Docker Hub with 
 
 ## 📊 Image Comparison
 
-| Tool | Standard Size | Slim Size | Savings | Docker Hub |
-|------|---------------|-----------|---------|------------|
-| **Speech-to-Text** | 1.71GB | **1.13GB** | **-580MB (-34%)** | `michaelyuwh/mcp-speech-to-text:slim` |
-| **Text-to-Speech** | ~800MB | **406MB** | **~400MB (-50%)** | `michaelyuwh/mcp-text-to-speech:slim` |
+| Tool | Standard Size | Slim Size | Savings | Docker Hub | GitHub Packages |
+|------|---------------|-----------|---------|------------|-----------------|
+| **Speech-to-Text** | 1.71GB | **1.13GB** | **-580MB (-34%)** | `michaelyuwh/mcp-speech-to-text:slim` | `ghcr.io/michaelyuwh/mcp-speech-to-text:slim` |
+| **Text-to-Speech** | ~800MB | **406MB** | **~400MB (-50%)** | `michaelyuwh/mcp-text-to-speech:slim` | `ghcr.io/michaelyuwh/mcp-text-to-speech:slim` |
 
 ## 🚀 Quick Start
 
 ### Speech-to-Text
 ```bash
-# Pull and run slim image
+# Docker Hub
 docker pull michaelyuwh/mcp-speech-to-text:slim
 docker run -p 8000:8000 michaelyuwh/mcp-speech-to-text:slim
+
+# GitHub Container Registry
+docker pull ghcr.io/michaelyuwh/mcp-speech-to-text:slim
+docker run -p 8000:8000 ghcr.io/michaelyuwh/mcp-speech-to-text:slim
 
 # With Cantonese support (requires Google Cloud credentials)
 docker run -p 8000:8000 \
@@ -28,24 +32,42 @@ docker run -p 8000:8000 \
 
 ### Text-to-Speech
 ```bash
-# Pull and run slim image
+# Docker Hub
 docker pull michaelyuwh/mcp-text-to-speech:slim
 docker run -p 8000:8000 \
   -v ./output:/app/output \
   michaelyuwh/mcp-text-to-speech:slim
+
+# GitHub Container Registry
+docker pull ghcr.io/michaelyuwh/mcp-text-to-speech:slim
+docker run -p 8000:8000 \
+  -v ./output:/app/output \
+  ghcr.io/michaelyuwh/mcp-text-to-speech:slim
 ```
 
 ## 🏷️ Available Tags
 
 ### Speech-to-Text Tags
+**Docker Hub:**
 - `michaelyuwh/mcp-speech-to-text:slim` - Latest optimized build
 - `michaelyuwh/mcp-speech-to-text:v1.1.0-slim` - Versioned optimized build
 - `michaelyuwh/mcp-speech-to-text:latest` - Standard build
 
+**GitHub Packages:**
+- `ghcr.io/michaelyuwh/mcp-speech-to-text:slim` - Latest optimized build
+- `ghcr.io/michaelyuwh/mcp-speech-to-text:v1.1.0-slim` - Versioned optimized build
+- `ghcr.io/michaelyuwh/mcp-speech-to-text:latest` - Standard build
+
 ### Text-to-Speech Tags
+**Docker Hub:**
 - `michaelyuwh/mcp-text-to-speech:slim` - Latest optimized build
 - `michaelyuwh/mcp-text-to-speech:v1.0.0-slim` - Versioned optimized build
 - `michaelyuwh/mcp-text-to-speech:latest` - Standard build
+
+**GitHub Packages:**
+- `ghcr.io/michaelyuwh/mcp-text-to-speech:slim` - Latest optimized build
+- `ghcr.io/michaelyuwh/mcp-text-to-speech:v1.0.0-slim` - Versioned optimized build
+- `ghcr.io/michaelyuwh/mcp-text-to-speech:latest` - Standard build
 
 ## 🔧 Production Docker Compose
 

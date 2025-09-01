@@ -20,6 +20,9 @@ WORKDIR /app
 # Copy dependency files
 COPY pyproject.toml README.md ./
 
+# Copy source code needed for installation
+COPY src/ ./src/
+
 # Install dependencies into virtual environment
 RUN uv venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"

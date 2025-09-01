@@ -89,3 +89,4 @@ docker pull ghcr.io/michaelyuwh/mcp-text-to-speech:slim
 - **GitHub Actions**: 3-5 minutes to complete
 - **Package visibility**: Immediate after successful push
 - **Public availability**: Depends on repository visibility settings
+# Docker Build Status: Fixed Tue Sep  2 00:46:20 HKT 2025
